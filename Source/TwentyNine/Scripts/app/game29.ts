@@ -49,7 +49,7 @@ interface HubProxy {
 }
 
 interface SignalR {
-    proxy: HubProxy;
+    game29: HubProxy;
 }
 
 class Logger {
@@ -62,7 +62,7 @@ class Logger {
 
 module Game29 {
 
-    var app = angular.module("game29", ["ngCookies", "ui.bootstrap"]);
+    var App = angular.module("game29", ["ngCookies", "ui.bootstrap"]);
 
     export interface IGame29Scope extends ng.IScope {
         joinModalOptions: Object;
@@ -109,19 +109,18 @@ module Game29 {
     }
 
     export class Game29Ctrl {
-        private _proxy: HubProxy;
+        private _game29: HubProxy;
 
         // protect the injection from minification
         static $inject = ['$scope', '$location', '$cookies'];
 
         constructor(private $scope: IGame29Scope, private $location: ng.ILocationService, private $cookies: any) {
-            this._proxy = $.connection.proxy;
+            this._game29 = $.connection.game29;
             var that = this;
 
             this.registerScopeWatches();
             this.registerScopeHandlers(that);
             this.registerClientCallbacks();
-
             this.startHub($scope, that);
         }
 
@@ -145,7 +144,7 @@ module Game29 {
             return value;
         }
 
-        get room(): Game {
+        get room(): Room {
             var value = this.$scope.room;
 
             if (!value) {
@@ -154,7 +153,7 @@ module Game29 {
                 if (!roomName)
                     return null;
 
-                value = new Game();
+                value = new Room();
                 value.Name = roomName;
 
                 this.$scope.room = value;
@@ -237,51 +236,53 @@ module Game29 {
         //#region Client
 
         private registerClientCallbacks() {
-            this._proxy.client.userJoined = (user: User) => this.userChanged(user);
-            this._proxy.client.userLeftRoom = (user: User) => this.userRemoved(user);
-            this._proxy.client.trumpOpened = (suite: SuiteType) => {
+            this._game29.client.userJoined = (user: User) => this.userJoined(user);
+            this._game29.client.userLeftRoom = (user: User) => this.userLeftRoom(user);
+            this._game29.client.trumpOpened = (suite: SuiteType) => {
                 //this.$scope.showTrump = true;
                 this.$scope.$apply();
             };
         }
 
-        private userChanged(user: User) {
-            if (this.$scope.room.Users) {
-                var found = false;
+        private userJoined(user: User) {
+            Logger.log("userJoined");
+            //if (this.$scope.room.Users) {
+            //    var found = false;
 
-                this.$scope.room.Users = this.$scope.room.Users.map(function (roomUser) {
-                    if (user.Email === roomUser.Email) {
-                        found = true;
-                        roomUser = user;
-                    }
+            //    this.$scope.room.Users = this.$scope.room.Users.map(function (roomUser) {
+            //        if (user.Email === roomUser.Email) {
+            //            found = true;
+            //            roomUser = user;
+            //        }
 
-                    return roomUser;
-                });
+            //        return roomUser;
+            //    });
 
-                if (!found)
-                    this.$scope.room.Users.push(user);
+            //    if (!found)
+            //        this.$scope.room.Users.push(user);
 
-                this.$scope.$apply();
-            }
+            //    this.$scope.$apply();
+            //}
         }
 
-        private userRemoved(user: User) {
-            var found = false;
+        private userLeftRoom(user: User) {
+            Logger.log("userLeftRoom called");
+            //var found = false;
 
-            if (user.Email === this.$scope.me.Email) {
-                this.$scope.room = null;
-                this.$location.path("");
-                this.$scope.joinRoomModal = true;
-            } else {
-                this.$scope.room.Users = this.$scope.room.Users.filter(function (roomUser) {
-                    return user.Email !== roomUser.Email;
-                });
-                this.$scope.room.Cards = this.$scope.room.Cards.filter(function (roomCard) {
-                    return user.Email !== roomCard.User.Email;
-                });
-            }
+            //if (user.Email === this.$scope.me.Email) {
+            //    this.$scope.room = null;
+            //    this.$location.path("");
+            //    this.$scope.joinRoomModal = true;
+            //} else {
+            //    this.$scope.room.Users = this.$scope.room.Users.filter(function (roomUser) {
+            //        return user.Email !== roomUser.Email;
+            //    });
+            //    this.$scope.room.Cards = this.$scope.room.Cards.filter(function (roomCard) {
+            //        return user.Email !== roomCard.User.Email;
+            //    });
+            //}
 
-            this.$scope.$apply();
+            //this.$scope.$apply();
         }
 
         //#endregion
@@ -290,17 +291,17 @@ module Game29 {
 
         private join(user: User = this.me): JQueryPromise {
             var that = this;
-            return this._proxy.server.join(user).done(function (data) {
+            return this._game29.server.join(user).done(function (data) {
                 that.$scope.me = data;
                 that.$scope.$apply();
             });
         }
 
-        private joinRoom(room: Game = this.room): JQueryPromise {
+        private joinRoom(room: Room = this.room): JQueryPromise {
             this.$location.path("/rooms/" + encodeURIComponent(room.Name));
 
             var that = this;
-            return this._proxy.server.joinRoom(room).done(function (data) {
+            return this._game29.server.joinRoom(room).done(function (data) {
                 that.$scope.room = data;
 
 
@@ -332,36 +333,82 @@ module Game29 {
     }
 
     // setup controller
-    app.controller("Game29Ctrl", Game29Ctrl);
+    App.controller("Game29Ctrl", Game29Ctrl);
 
     export class User {
+        public Id: string;
         public Name: string;
         public Email: string;
-        public Disconnected: string;
     }
 
     export class Room {
+        public Id: string;
         public Name: string;
-        public Topic: string;
-        public Users: User[];
-        public Cards: Card[];
+        public State: RoomState;
+        public Watchers: User[];
     }
 
     export class Game {
-        public Name: string;
-        public Topic: string;
-        public Users: User[];
+        public Id: string;
+        public State: GameState;
+        public ScoreType: GameScoreType;
+        public Result: GameResult;
+
+        public CurrentRound: RoundSet;
+
+        public MyCards: Card[];
+    }
+
+    export class RoundSet
+    {
+        public Result: GameResult;
+        public RoundHost: TeamPosition;
         public Cards: Card[];
     }
 
     export class Card {
-        public suite: SuiteType;
-        public pointCard: PointCard;
+        public Suite: SuiteType;
+        public PointCard: PointCard;
     }
 
     export class EmoteMessage {
-        public emote: Emote;
-        public message: string;
+        public Emote: Emote;
+        public Message: string;
+    }
+
+    export enum GameResult {
+        Incomplete,
+        TeamA,
+        TeamB
+    }
+    export enum GameScoreType {
+        Normal,
+        Double,
+        Redouble
+    }
+
+    export enum RoomState {
+        New,
+        WaitingForPlayers,
+        ReadyForGame,
+        PlayingGame,
+        Closed,
+        Abandoned
+    }
+
+    export enum GameState {
+        New,
+        MixingCards,
+        DistributingCards1,
+        BiddingTrump,
+        SettingTrump,
+        OfferDoublePoints,
+        OfferRedoublePoints,
+        DistributingCards2,
+        TrickPlay,
+        UpdatingScore,
+        Completed,
+        Cancelled
     }
 
     export enum TeamPosition {

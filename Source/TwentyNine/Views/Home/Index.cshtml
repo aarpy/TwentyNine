@@ -3,7 +3,7 @@
 }
 
 <!DOCTYPE html>
-<html data-ng-appx="game29">
+<html data-ng-app="game29">
 	<head>
 		<title>29</title>
 		
@@ -11,17 +11,17 @@
 		@Scripts.Render("~/scripts/app")
 		<script src="~/signalr/hubs"></script>
 	</head>
-	<body data-ng-controller="GameCtrl" data-ng-class="{ 'hide-room': joinModal || joinRoomModal }">
+	<body data-ng-controller="Game29Ctrl" data-ng-class="{ 'hide-room': joinModal || joinRoomModal }">
 
 		<div class="container-fluid playing-field">
-			<h2>Room: {{ room.RoomName }}</h2>
+			<h2>Room: {{ room.Name }}</h2>
 			
 			<button class="pull-right btn btn-danger" data-ng-click="resetRoom()">Reset Room</button>
 			<button class="pull-right btn btn-info" data-ng-click="showAllCards(!allCardsShowing)">{{ allCardsShowing && 'Hide' || 'Show' }} All Cards</button>
 
 			<section>
 				<div class="row-fluid">
-					<input type="text" class="span12 topic" data-ng-model="room.Topic" placeholder="Enter Topic" data-ng-change="roomTopicChanged()" required />
+					<input type="text" class="span12 topic" data-ng-model="room.Name" placeholder="Enter Name" required />
 				</div>
 					
 				<ul class="row-fluid cards">
@@ -63,7 +63,7 @@
 		
 		<div id="joinModal" data-modal="joinModal" data-options="joinModalOptions">
 			<div class="modal-header">
-				<h3>Join Consensus</h3>
+				<h3>Join 29</h3>
 			</div>
 			<div class="modal-body">
 				<p><label>Your Name<br/><input type="text" data-ng-model="me.Name" placeholder="Your Name" required /></label></p>

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNet.SignalR;
 using NLog;
-using SignalR.Hubs;
 using TwentyNine.Models;
 
 namespace TwentyNine.Hubs

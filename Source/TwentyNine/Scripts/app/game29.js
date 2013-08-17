@@ -14,20 +14,19 @@ var Logger = (function () {
 
 var Game29;
 (function (Game29) {
-    var app = angular.module("game29", ["ngCookies", "ui.bootstrap"]);
+    var App = angular.module("game29", ["ngCookies", "ui.bootstrap"]);
 
     var Game29Ctrl = (function () {
         function Game29Ctrl($scope, $location, $cookies) {
             this.$scope = $scope;
             this.$location = $location;
             this.$cookies = $cookies;
-            this._proxy = $.connection.proxy;
+            this._game29 = $.connection.game29;
             var that = this;
 
             this.registerScopeWatches();
             this.registerScopeHandlers(that);
             this.registerClientCallbacks();
-
             this.startHub($scope, that);
         }
         Object.defineProperty(Game29Ctrl.prototype, "me", {
@@ -63,7 +62,7 @@ var Game29;
                     if (!roomName)
                         return null;
 
-                    value = new Game();
+                    value = new Room();
                     value.Name = roomName;
 
                     this.$scope.room = value;
@@ -151,55 +150,51 @@ var Game29;
         //#region Client
         Game29Ctrl.prototype.registerClientCallbacks = function () {
             var _this = this;
-            this._proxy.client.userJoined = function (user) {
-                return _this.userChanged(user);
+            this._game29.client.userJoined = function (user) {
+                return _this.userJoined(user);
             };
-            this._proxy.client.userLeftRoom = function (user) {
-                return _this.userRemoved(user);
+            this._game29.client.userLeftRoom = function (user) {
+                return _this.userLeftRoom(user);
             };
-            this._proxy.client.trumpOpened = function (suite) {
+            this._game29.client.trumpOpened = function (suite) {
                 //this.$scope.showTrump = true;
                 _this.$scope.$apply();
             };
         };
 
-        Game29Ctrl.prototype.userChanged = function (user) {
-            if (this.$scope.room.Users) {
-                var found = false;
-
-                this.$scope.room.Users = this.$scope.room.Users.map(function (roomUser) {
-                    if (user.Email === roomUser.Email) {
-                        found = true;
-                        roomUser = user;
-                    }
-
-                    return roomUser;
-                });
-
-                if (!found)
-                    this.$scope.room.Users.push(user);
-
-                this.$scope.$apply();
-            }
+        Game29Ctrl.prototype.userJoined = function (user) {
+            Logger.log("userJoined");
+            //if (this.$scope.room.Users) {
+            //    var found = false;
+            //    this.$scope.room.Users = this.$scope.room.Users.map(function (roomUser) {
+            //        if (user.Email === roomUser.Email) {
+            //            found = true;
+            //            roomUser = user;
+            //        }
+            //        return roomUser;
+            //    });
+            //    if (!found)
+            //        this.$scope.room.Users.push(user);
+            //    this.$scope.$apply();
+            //}
         };
 
-        Game29Ctrl.prototype.userRemoved = function (user) {
-            var found = false;
-
-            if (user.Email === this.$scope.me.Email) {
-                this.$scope.room = null;
-                this.$location.path("");
-                this.$scope.joinRoomModal = true;
-            } else {
-                this.$scope.room.Users = this.$scope.room.Users.filter(function (roomUser) {
-                    return user.Email !== roomUser.Email;
-                });
-                this.$scope.room.Cards = this.$scope.room.Cards.filter(function (roomCard) {
-                    return user.Email !== roomCard.User.Email;
-                });
-            }
-
-            this.$scope.$apply();
+        Game29Ctrl.prototype.userLeftRoom = function (user) {
+            Logger.log("userLeftRoom called");
+            //var found = false;
+            //if (user.Email === this.$scope.me.Email) {
+            //    this.$scope.room = null;
+            //    this.$location.path("");
+            //    this.$scope.joinRoomModal = true;
+            //} else {
+            //    this.$scope.room.Users = this.$scope.room.Users.filter(function (roomUser) {
+            //        return user.Email !== roomUser.Email;
+            //    });
+            //    this.$scope.room.Cards = this.$scope.room.Cards.filter(function (roomCard) {
+            //        return user.Email !== roomCard.User.Email;
+            //    });
+            //}
+            //this.$scope.$apply();
         };
 
         //#endregion
@@ -207,7 +202,7 @@ var Game29;
         Game29Ctrl.prototype.join = function (user) {
             if (typeof user === "undefined") { user = this.me; }
             var that = this;
-            return this._proxy.server.join(user).done(function (data) {
+            return this._game29.server.join(user).done(function (data) {
                 that.$scope.me = data;
                 that.$scope.$apply();
             });
@@ -218,7 +213,7 @@ var Game29;
             this.$location.path("/rooms/" + encodeURIComponent(room.Name));
 
             var that = this;
-            return this._proxy.server.joinRoom(room).done(function (data) {
+            return this._game29.server.joinRoom(room).done(function (data) {
                 that.$scope.room = data;
 
                 that.$scope.$apply();
@@ -252,7 +247,7 @@ var Game29;
     Game29.Game29Ctrl = Game29Ctrl;
 
     // setup controller
-    app.controller("Game29Ctrl", Game29Ctrl);
+    App.controller("Game29Ctrl", Game29Ctrl);
 
     var User = (function () {
         function User() {
@@ -275,6 +270,13 @@ var Game29;
     })();
     Game29.Game = Game;
 
+    var RoundSet = (function () {
+        function RoundSet() {
+        }
+        return RoundSet;
+    })();
+    Game29.RoundSet = RoundSet;
+
     var Card = (function () {
         function Card() {
         }
@@ -288,6 +290,45 @@ var Game29;
         return EmoteMessage;
     })();
     Game29.EmoteMessage = EmoteMessage;
+
+    (function (GameResult) {
+        GameResult[GameResult["Incomplete"] = 0] = "Incomplete";
+        GameResult[GameResult["TeamA"] = 1] = "TeamA";
+        GameResult[GameResult["TeamB"] = 2] = "TeamB";
+    })(Game29.GameResult || (Game29.GameResult = {}));
+    var GameResult = Game29.GameResult;
+    (function (GameScoreType) {
+        GameScoreType[GameScoreType["Normal"] = 0] = "Normal";
+        GameScoreType[GameScoreType["Double"] = 1] = "Double";
+        GameScoreType[GameScoreType["Redouble"] = 2] = "Redouble";
+    })(Game29.GameScoreType || (Game29.GameScoreType = {}));
+    var GameScoreType = Game29.GameScoreType;
+
+    (function (RoomState) {
+        RoomState[RoomState["New"] = 0] = "New";
+        RoomState[RoomState["WaitingForPlayers"] = 1] = "WaitingForPlayers";
+        RoomState[RoomState["ReadyForGame"] = 2] = "ReadyForGame";
+        RoomState[RoomState["PlayingGame"] = 3] = "PlayingGame";
+        RoomState[RoomState["Closed"] = 4] = "Closed";
+        RoomState[RoomState["Abandoned"] = 5] = "Abandoned";
+    })(Game29.RoomState || (Game29.RoomState = {}));
+    var RoomState = Game29.RoomState;
+
+    (function (GameState) {
+        GameState[GameState["New"] = 0] = "New";
+        GameState[GameState["MixingCards"] = 1] = "MixingCards";
+        GameState[GameState["DistributingCards1"] = 2] = "DistributingCards1";
+        GameState[GameState["BiddingTrump"] = 3] = "BiddingTrump";
+        GameState[GameState["SettingTrump"] = 4] = "SettingTrump";
+        GameState[GameState["OfferDoublePoints"] = 5] = "OfferDoublePoints";
+        GameState[GameState["OfferRedoublePoints"] = 6] = "OfferRedoublePoints";
+        GameState[GameState["DistributingCards2"] = 7] = "DistributingCards2";
+        GameState[GameState["TrickPlay"] = 8] = "TrickPlay";
+        GameState[GameState["UpdatingScore"] = 9] = "UpdatingScore";
+        GameState[GameState["Completed"] = 10] = "Completed";
+        GameState[GameState["Cancelled"] = 11] = "Cancelled";
+    })(Game29.GameState || (Game29.GameState = {}));
+    var GameState = Game29.GameState;
 
     (function (TeamPosition) {
         TeamPosition[TeamPosition["Watcher"] = 0] = "Watcher";
