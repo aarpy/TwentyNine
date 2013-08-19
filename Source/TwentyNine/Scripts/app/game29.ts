@@ -21,6 +21,8 @@ interface IGame29Client {
     messageReceived(message: Game29.EmoteMessage);
     userBooted(user: Game29.User);
     gameClosed();
+
+    exceptionHandler(messge: string);
 }
 
 interface IGame29Server {
@@ -116,12 +118,11 @@ module Game29 {
 
         constructor(private $scope: IGame29Scope, private $location: ng.ILocationService, private $cookies: any) {
             this._game29 = $.connection.game29;
-            var that = this;
 
             this.registerScopeWatches();
-            this.registerScopeHandlers(that);
+            this.registerScopeHandlers();
             this.registerClientCallbacks();
-            this.startHub($scope, that);
+            this.startHub($scope);
         }
 
         //#region Properties
@@ -133,7 +134,7 @@ module Game29 {
                 var userEmail = this.$cookies.userEmail;
                 var userName = this.$cookies.userName;
 
-                if (!userEmail)
+                //if (!userEmail)
                     return null;
 
                 value = new User();
@@ -165,44 +166,47 @@ module Game29 {
         //#region Scope init
 
         private registerScopeWatches() {
+            var that = this;
             this.$scope.$watch("room.Name", function (value) {
                 if (!value) return;
-                this.$location.path("/rooms/" + encodeURIComponent(value));
+                that.$location.path("/rooms/" + encodeURIComponent(value));
             });
             this.$scope.$watch("me.Email", function (value) {
                 if (!value) return;
-                this.$cookies.userEmail = value;
+                that.$cookies.userEmail = value;
             });
             this.$scope.$watch("me.Name", function (value) {
                 if (!value) return;
-                this.$cookies.userName = value;
+                that.$cookies.userName = value;
             });
         }
 
-        private registerScopeHandlers(ctrl: Game29Ctrl) {
-            this.$scope.closeJoinModal = function () {
-                this.$scope.joinModal = !this.$scope.me.Name || !this.$scope.me.Email;
-                this.$scope.joinRoomModal = !this.$scope.joinModal && !ctrl.room;
+        private registerScopeHandlers() {
+            var that = this;
 
-                if (!this.$scope.joinModal) {
-                    ctrl.join();
+            this.$scope.closeJoinModal = function () {
+                that.$scope.joinModal = !that.$scope.me.Name || !that.$scope.me.Email;
+                that.$scope.joinRoomModal = !that.$scope.joinModal && !that.room;
+
+                if (!that.$scope.joinModal) {
+                    that.join();
                 }
 
-                if (!this.$scope.joinRoomModal) {
-                    ctrl.joinRoom();
+                if (!that.$scope.joinRoomModal) {
+                    that.joinRoom();
                 }
             };
 
             this.$scope.closeJoinRoomModal = function () {
-                this.$scope.joinRoomModal = !this.$scope.room.Name;
+                that.$scope.joinRoomModal = !that.$scope.room.Name;
 
-                if (!this.$scope.joinRoomModal) {
-                    ctrl.joinRoom();
+                if (!that.$scope.joinRoomModal) {
+                    that.joinRoom();
                 }
             };
 
             this.$scope.leaveRoom = function () {
-                ctrl.leaveRoom(this.user);
+                that.leaveRoom(this.user);
             };
 
             this.$scope.leaveTeam = function () {
@@ -215,8 +219,10 @@ module Game29 {
             };
         }
 
-        private startHub($scope: IGame29Scope, that: Game29Ctrl) {
-            $.connection.hub.start().done(function () {
+        private startHub($scope: IGame29Scope) {
+            var that = this;
+
+            $.connection.hub.start({ transport: 'longPolling' }).done(function () {
                 if (that.me) {
                     that.join().done(function () {
                         if (that.room) {
@@ -241,6 +247,9 @@ module Game29 {
             this._game29.client.trumpOpened = (suite: SuiteType) => {
                 //this.$scope.showTrump = true;
                 this.$scope.$apply();
+            };
+            this._game29.client.exceptionHandler = (message: string) => {
+                window.alert(message);
             };
         }
 

@@ -22,12 +22,11 @@ var Game29;
             this.$location = $location;
             this.$cookies = $cookies;
             this._game29 = $.connection.game29;
-            var that = this;
 
             this.registerScopeWatches();
-            this.registerScopeHandlers(that);
+            this.registerScopeHandlers();
             this.registerClientCallbacks();
-            this.startHub($scope, that);
+            this.startHub($scope);
         }
         Object.defineProperty(Game29Ctrl.prototype, "me", {
             get: //#region Properties
@@ -38,8 +37,8 @@ var Game29;
                     var userEmail = this.$cookies.userEmail;
                     var userName = this.$cookies.userName;
 
-                    if (!userEmail)
-                        return null;
+                    //if (!userEmail)
+                    return null;
 
                     value = new User();
                     value.Name = userName;
@@ -76,47 +75,50 @@ var Game29;
 
         //#region Scope init
         Game29Ctrl.prototype.registerScopeWatches = function () {
+            var that = this;
             this.$scope.$watch("room.Name", function (value) {
                 if (!value)
                     return;
-                this.$location.path("/rooms/" + encodeURIComponent(value));
+                that.$location.path("/rooms/" + encodeURIComponent(value));
             });
             this.$scope.$watch("me.Email", function (value) {
                 if (!value)
                     return;
-                this.$cookies.userEmail = value;
+                that.$cookies.userEmail = value;
             });
             this.$scope.$watch("me.Name", function (value) {
                 if (!value)
                     return;
-                this.$cookies.userName = value;
+                that.$cookies.userName = value;
             });
         };
 
-        Game29Ctrl.prototype.registerScopeHandlers = function (ctrl) {
-            this.$scope.closeJoinModal = function () {
-                this.$scope.joinModal = !this.$scope.me.Name || !this.$scope.me.Email;
-                this.$scope.joinRoomModal = !this.$scope.joinModal && !ctrl.room;
+        Game29Ctrl.prototype.registerScopeHandlers = function () {
+            var that = this;
 
-                if (!this.$scope.joinModal) {
-                    ctrl.join();
+            this.$scope.closeJoinModal = function () {
+                that.$scope.joinModal = !that.$scope.me.Name || !that.$scope.me.Email;
+                that.$scope.joinRoomModal = !that.$scope.joinModal && !that.room;
+
+                if (!that.$scope.joinModal) {
+                    that.join();
                 }
 
-                if (!this.$scope.joinRoomModal) {
-                    ctrl.joinRoom();
+                if (!that.$scope.joinRoomModal) {
+                    that.joinRoom();
                 }
             };
 
             this.$scope.closeJoinRoomModal = function () {
-                this.$scope.joinRoomModal = !this.$scope.room.Name;
+                that.$scope.joinRoomModal = !that.$scope.room.Name;
 
-                if (!this.$scope.joinRoomModal) {
-                    ctrl.joinRoom();
+                if (!that.$scope.joinRoomModal) {
+                    that.joinRoom();
                 }
             };
 
             this.$scope.leaveRoom = function () {
-                ctrl.leaveRoom(this.user);
+                that.leaveRoom(this.user);
             };
 
             this.$scope.leaveTeam = function () {
@@ -129,8 +131,10 @@ var Game29;
             };
         };
 
-        Game29Ctrl.prototype.startHub = function ($scope, that) {
-            $.connection.hub.start().done(function () {
+        Game29Ctrl.prototype.startHub = function ($scope) {
+            var that = this;
+
+            $.connection.hub.start({ transport: 'longPolling' }).done(function () {
                 if (that.me) {
                     that.join().done(function () {
                         if (that.room) {
@@ -159,6 +163,9 @@ var Game29;
             this._game29.client.trumpOpened = function (suite) {
                 //this.$scope.showTrump = true;
                 _this.$scope.$apply();
+            };
+            this._game29.client.exceptionHandler = function (message) {
+                window.alert(message);
             };
         };
 
