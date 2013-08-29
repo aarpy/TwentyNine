@@ -1,4 +1,6 @@
-﻿namespace TwentyNine.Models
+﻿using TwentyNine.Hubs;
+
+namespace TwentyNine.Models
 {
 
     #region Room
@@ -47,20 +49,20 @@
         Cancelled
     }
 
-    public enum GameResult
+    public enum PlayerTeam
     {
-        Incomplete,
+        Unknown,
         TeamA,
         TeamB
     }
 
-    public enum TeamPosition
+    public enum PlayerPosition
     {
         Watcher,
-        TeamA1,
-        TeamB1,
-        TeamA2,
-        TeamB2
+        A1,
+        B1,
+        A2,
+        B2
     }
 
     public enum GamePlayerState
@@ -102,15 +104,88 @@
         Two,
     }
 
-    public enum PointCardValue
+    public static class EnumExtensions
     {
-        Jack = 3,
-        Nine = 2,
-        Ace = 1,
-        Ten = 1,
-        King = 0,
-        Queen = 0,
-        Eight = 0,
-        Seven = 0
+        public static PlayerTeam Team(this PlayerPosition position)
+        {
+            switch (position)
+            {
+                case PlayerPosition.A1:
+                case PlayerPosition.A2:
+                    return PlayerTeam.TeamA;
+                case PlayerPosition.B1:
+                case PlayerPosition.B2:
+                    return PlayerTeam.TeamB;
+                default:
+                    return PlayerTeam.Unknown;
+            }
+        }
+
+        public static PlayerPosition NextPosition(this PlayerPosition position)
+        {
+            if (position == PlayerPosition.Watcher)
+                throw new Game29Exception("Not a player position");
+
+            if (position == PlayerPosition.B2)
+            {
+                position = PlayerPosition.A1;
+            }
+            else
+            {
+                position++;
+            }
+            return position;
+        }
+
+        public static PlayerPosition GetRelativePosition(this PlayerPosition startPosition, int count)
+        {
+            var roundPos = startPosition;
+            for (var i = 0; i < count; i++)
+            {
+                roundPos = roundPos.NextPosition();
+            }
+            return roundPos;
+        }
+
+        public static int Value(this PointCard pointCard)
+        {
+            switch (pointCard)
+            {
+                case PointCard.Jack:
+                    return 3;
+                case PointCard.Nine:
+                    return 2;
+                case PointCard.Ace:
+                case PointCard.Ten:
+                    return 1;
+                default:
+                    return 0;
+            }
+        }
+
+        public static int Order(this PointCard pointCard)
+        {
+            switch (pointCard)
+            {
+                case PointCard.Jack:
+                    return 8;
+                case PointCard.Nine:
+                    return 7;
+                case PointCard.Ace:
+                    return 6;
+                case PointCard.Ten:
+                    return 5;
+                case PointCard.King:
+                    return 4;
+                case PointCard.Queen:
+                    return 3;
+                case PointCard.Eight:
+                    return 2;
+                case PointCard.Seven:
+                    return 1;
+                default:
+                    return 0;
+            }
+        }
     }
 }

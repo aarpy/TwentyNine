@@ -263,6 +263,13 @@ var Game29;
     })();
     Game29.User = User;
 
+    var Player = (function () {
+        function Player() {
+        }
+        return Player;
+    })();
+    Game29.Player = Player;
+
     var Room = (function () {
         function Room() {
         }
@@ -298,12 +305,12 @@ var Game29;
     })();
     Game29.EmoteMessage = EmoteMessage;
 
-    (function (GameResult) {
-        GameResult[GameResult["Incomplete"] = 0] = "Incomplete";
-        GameResult[GameResult["TeamA"] = 1] = "TeamA";
-        GameResult[GameResult["TeamB"] = 2] = "TeamB";
-    })(Game29.GameResult || (Game29.GameResult = {}));
-    var GameResult = Game29.GameResult;
+    (function (PlayerTeam) {
+        PlayerTeam[PlayerTeam["Unknown"] = 0] = "Unknown";
+        PlayerTeam[PlayerTeam["TeamA"] = 1] = "TeamA";
+        PlayerTeam[PlayerTeam["TeamB"] = 2] = "TeamB";
+    })(Game29.PlayerTeam || (Game29.PlayerTeam = {}));
+    var PlayerTeam = Game29.PlayerTeam;
     (function (GameScoreType) {
         GameScoreType[GameScoreType["Normal"] = 0] = "Normal";
         GameScoreType[GameScoreType["Double"] = 1] = "Double";
@@ -337,14 +344,14 @@ var Game29;
     })(Game29.GameState || (Game29.GameState = {}));
     var GameState = Game29.GameState;
 
-    (function (TeamPosition) {
-        TeamPosition[TeamPosition["Watcher"] = 0] = "Watcher";
-        TeamPosition[TeamPosition["TeamA1"] = 1] = "TeamA1";
-        TeamPosition[TeamPosition["TeamB1"] = 2] = "TeamB1";
-        TeamPosition[TeamPosition["TeamA2"] = 3] = "TeamA2";
-        TeamPosition[TeamPosition["TeamB2"] = 4] = "TeamB2";
-    })(Game29.TeamPosition || (Game29.TeamPosition = {}));
-    var TeamPosition = Game29.TeamPosition;
+    (function (PlayerPosition) {
+        PlayerPosition[PlayerPosition["Watcher"] = 0] = "Watcher";
+        PlayerPosition[PlayerPosition["A1"] = 1] = "A1";
+        PlayerPosition[PlayerPosition["B1"] = 2] = "B1";
+        PlayerPosition[PlayerPosition["A2"] = 3] = "A2";
+        PlayerPosition[PlayerPosition["B2"] = 4] = "B2";
+    })(Game29.PlayerPosition || (Game29.PlayerPosition = {}));
+    var PlayerPosition = Game29.PlayerPosition;
 
     (function (SuiteType) {
         SuiteType[SuiteType["Spade"] = 0] = "Spade";

@@ -5,17 +5,18 @@
 interface IGame29Client {
     userJoined(user: Game29.User);
     userLeftRoom(user: Game29.User);
-    userJoinedTeam(user: Game29.User);
-    userLeftTeam(user: Game29.User);
+    userJoinedTeam(user: Game29.Player);
+    userLeftTeam(position: Game29.PlayerPosition);
 
     gameStarted(game: Game29.Game, cards: Game29.Card[]);
-    bidReceived(points: number);
+    bidReceived(points: number, blockingPosition: Game29.PlayerPosition);
+    bidPassed(blockingPosition: Game29.PlayerPosition);
     binFinalized(points: number);
     trumpSelected();
-    receivedDoubleOffer();
-    takeRemainingCards(cards: Game29.Card[]);
-    receivedTurn(newRound: boolean);
-    cardPlayed(card: Game29.Card);
+    receivedDoubleOffer(user: Game29.User);
+    receivedRedoubleOffer(user: Game29.User);
+    takeAllCards(cards: Game29.Card[]);
+    cardPlayed(card: Game29.Card, myTurn: boolean);
     trumpOpened(suite: Game29.SuiteType);
 
     messageReceived(message: Game29.EmoteMessage);
@@ -28,15 +29,18 @@ interface IGame29Client {
 interface IGame29Server {
     join(user: Game29.User): JQueryPromise;
     joinRoom(room: Game29.Room): JQueryPromise;
-    leaveRoom(room: Game29.Room): JQueryPromise;
-    joinTeam(teamPosition: Game29.TeamPosition): JQueryPromise;
-    leaveTeam(teamPosition: Game29.TeamPosition): JQueryPromise;
+    leaveRoom(): JQueryPromise;
+    joinTeam(playerPosition: Game29.PlayerPosition): JQueryPromise;
+    leaveTeam(): JQueryPromise;
 
     startGame(): JQueryPromise;
     bidTrump(points: number): JQueryPromise;
+    bidPass(): JQueryPromise;
     bidTrumpFinalize(): JQueryPromise;
     selectTrump(suite: Game29.SuiteType): JQueryPromise;
     submitDoubleScoreOffer(): JQueryPromise;
+    submitRedoubleScoreOffer(): JQueryPromise;
+    passDoubleScoreOffer(): JQueryPromise;
     playCard(card: Game29.Card): JQueryPromise;
     showTrump(): JQueryPromise;
 
@@ -75,7 +79,7 @@ module Game29 {
         joinRoomModal: boolean;
         closeJoinRoomModal();
 
-        joinTeam(teamPosition: TeamPosition);
+        joinTeam(playerPosition: PlayerPosition);
         startGame();
 
         leaveRoom();
@@ -90,6 +94,7 @@ module Game29 {
         selectTrump();
 
         submitDoubleScoreOffer();
+        submitRedoubleScoreOffer();
 
         selectedCard: Card;
         playCard();
@@ -350,6 +355,11 @@ module Game29 {
         public Email: string;
     }
 
+    export class Player {
+        public User: User;
+        public Player: PlayerPosition;
+    }
+
     export class Room {
         public Id: string;
         public Name: string;
@@ -361,7 +371,7 @@ module Game29 {
         public Id: string;
         public State: GameState;
         public ScoreType: GameScoreType;
-        public Result: GameResult;
+        public Result: PlayerTeam;
 
         public CurrentRound: RoundSet;
 
@@ -370,8 +380,8 @@ module Game29 {
 
     export class RoundSet
     {
-        public Result: GameResult;
-        public RoundHost: TeamPosition;
+        public Result: PlayerTeam;
+        public RoundHost: PlayerPosition;
         public Cards: Card[];
     }
 
@@ -385,8 +395,8 @@ module Game29 {
         public Message: string;
     }
 
-    export enum GameResult {
-        Incomplete,
+    export enum PlayerTeam {
+        Unknown,
         TeamA,
         TeamB
     }
@@ -420,12 +430,12 @@ module Game29 {
         Cancelled
     }
 
-    export enum TeamPosition {
+    export enum PlayerPosition {
         Watcher,
-        TeamA1,
-        TeamB1,
-        TeamA2,
-        TeamB2
+        A1,
+        B1,
+        A2,
+        B2
     }
 
     export enum SuiteType {

@@ -4,15 +4,16 @@ namespace TwentyNine.Hubs
 {
     public interface IGame29
     {
-        User Join(User user);
+        Player Join(User user);
         Room JoinRoom(Room room);
-        void LeaveRoom(Room room);
-        Player JoinTeam(TeamPosition teamPosition);
-        void LeaveTeam(TeamPosition teamPosition);
+        void LeaveRoom();
+        bool JoinTeam(PlayerPosition playerPosition);
+        void LeaveTeam();
         void StartGame();
         void BidTrump(int points);
         void BidTrumpFinalize();
         void SubmitDoubleScoreOffer();
+        void SubmitRedoubleScoreOffer();
         void SelectTrump(SuiteType suite);
         void PlayCard(Card card);
         void ShowTrump();

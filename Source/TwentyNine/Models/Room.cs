@@ -12,18 +12,23 @@ namespace TwentyNine.Models
 
         public virtual Game Game { get; set; }
 
-        private ICollection<User> _watchers;
+        private ICollection<Player> _watchers;
 
-        public virtual ICollection<User> Watchers
+        public virtual ICollection<Player> Players
         {
             get
             {
-                if (_watchers == null) _watchers = new Collection<User>();
+                if (_watchers == null) _watchers = new Collection<Player>();
                 return _watchers;
             }
         }
 
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
+
+        public Room()
+        {
+            Game = new Game();
+        }
     }
 }
