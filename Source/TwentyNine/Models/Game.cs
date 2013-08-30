@@ -11,13 +11,16 @@ namespace TwentyNine.Models
         public Guid Id { get; set; }
         public GameState State { get; set; }
 
+        public GameScoreCard TeamAScoreCard { get; set; }
+        public GameScoreCard TeamBScoreCard { get; set; }
+
         public Player TrumpPlayer { get; set; }
         public SuiteType TrumpSuite { get; set; }
         public PlayerPosition TrumpOpenedBy { get; set; }
         public int TrumpOpenedRound { get; set; }
 
         public GameScoreType ScoreType { get; set; }
-        public PlayerTeam Result { get; set; }
+        public PlayerTeam WinningTeam { get; set; }
         public int TargetScore { get; set; }
         public int RunningScore { get; set; }
 
@@ -366,7 +369,11 @@ namespace TwentyNine.Models
 
         private void DoneWithTheGame()
         {
-            throw new NotImplementedException();
+            var trumpTeam = TrumpPlayer.Position.Team();
+            WinningTeam = RunningScore >= TargetScore
+                ? trumpTeam
+                : (trumpTeam == PlayerTeam.TeamA ? PlayerTeam.TeamB : PlayerTeam.TeamA);
+            State = GameState.Completed;
         }
     }
 }

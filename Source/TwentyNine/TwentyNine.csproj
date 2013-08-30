@@ -209,6 +209,7 @@
     <Compile Include="Models\Card.cs" />
     <Compile Include="Models\EmoteMessage.cs" />
     <Compile Include="Models\Game.cs" />
+    <Compile Include="Models\GameScoreCard.cs" />
     <Compile Include="Models\Player.cs" />
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\Room.cs" />

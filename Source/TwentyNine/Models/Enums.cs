@@ -95,15 +95,25 @@ namespace TwentyNine.Models
         Seven
     }
 
-    public enum ScoreCard
+    public enum MainScoreCard
+    {
+        Zero,
+        One,
+        Two,
+        Three,
+        Four,
+        Five,
+        Six
+    }
+
+    public enum MultiplierCard
     {
         Six,
         Five,
         Four,
         Three,
-        Two,
+        Two
     }
-
     public static class EnumExtensions
     {
         public static PlayerTeam Team(this PlayerPosition position)
