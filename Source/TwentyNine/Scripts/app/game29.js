@@ -305,12 +305,20 @@ var Game29;
     })();
     Game29.EmoteMessage = EmoteMessage;
 
+    var CardPlayed = (function () {
+        function CardPlayed() {
+        }
+        return CardPlayed;
+    })();
+    Game29.CardPlayed = CardPlayed;
+
     (function (PlayerTeam) {
         PlayerTeam[PlayerTeam["Unknown"] = 0] = "Unknown";
         PlayerTeam[PlayerTeam["TeamA"] = 1] = "TeamA";
         PlayerTeam[PlayerTeam["TeamB"] = 2] = "TeamB";
     })(Game29.PlayerTeam || (Game29.PlayerTeam = {}));
     var PlayerTeam = Game29.PlayerTeam;
+
     (function (GameScoreType) {
         GameScoreType[GameScoreType["Normal"] = 0] = "Normal";
         GameScoreType[GameScoreType["Double"] = 1] = "Double";
@@ -330,17 +338,15 @@ var Game29;
 
     (function (GameState) {
         GameState[GameState["New"] = 0] = "New";
-        GameState[GameState["MixingCards"] = 1] = "MixingCards";
-        GameState[GameState["DistributingCards1"] = 2] = "DistributingCards1";
-        GameState[GameState["BiddingTrump"] = 3] = "BiddingTrump";
-        GameState[GameState["SettingTrump"] = 4] = "SettingTrump";
-        GameState[GameState["OfferDoublePoints"] = 5] = "OfferDoublePoints";
-        GameState[GameState["OfferRedoublePoints"] = 6] = "OfferRedoublePoints";
-        GameState[GameState["DistributingCards2"] = 7] = "DistributingCards2";
-        GameState[GameState["TrickPlay"] = 8] = "TrickPlay";
-        GameState[GameState["UpdatingScore"] = 9] = "UpdatingScore";
-        GameState[GameState["Completed"] = 10] = "Completed";
-        GameState[GameState["Cancelled"] = 11] = "Cancelled";
+        GameState[GameState["BiddingTrump"] = 1] = "BiddingTrump";
+        GameState[GameState["SettingTrump"] = 2] = "SettingTrump";
+        GameState[GameState["OfferDoublePoints"] = 3] = "OfferDoublePoints";
+        GameState[GameState["OfferRedoublePoints"] = 4] = "OfferRedoublePoints";
+        GameState[GameState["StartRound"] = 5] = "StartRound";
+        GameState[GameState["ContinueRound"] = 6] = "ContinueRound";
+        GameState[GameState["RoundCompleted"] = 7] = "RoundCompleted";
+        GameState[GameState["GameCompleted"] = 8] = "GameCompleted";
+        GameState[GameState["Cancelled"] = 9] = "Cancelled";
     })(Game29.GameState || (Game29.GameState = {}));
     var GameState = Game29.GameState;
 

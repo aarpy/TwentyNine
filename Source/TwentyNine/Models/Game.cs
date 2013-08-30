@@ -8,8 +8,11 @@ namespace TwentyNine.Models
 {
     public class Game
     {
+        private const int MaxPlayRounds = 8;
+        private const int MaxPlayers = 4;
+
         public Guid Id { get; set; }
-        public GameState State { get; set; }
+        public GameState State { get; private set; }
 
         public GameScoreCard TeamAScoreCard { get; set; }
         public GameScoreCard TeamBScoreCard { get; set; }
@@ -17,7 +20,7 @@ namespace TwentyNine.Models
         public Player TrumpPlayer { get; set; }
         public SuiteType TrumpSuite { get; set; }
         public PlayerPosition TrumpOpenedBy { get; set; }
-        public int TrumpOpenedRound { get; set; }
+        public RoundSet TrumpOpenedRound { get; set; }
 
         public GameScoreType ScoreType { get; set; }
         public PlayerTeam WinningTeam { get; set; }
@@ -44,7 +47,7 @@ namespace TwentyNine.Models
         private void ValidateBlockingPlayerCall(string playerId)
         {
             var player = GetPlayerBlocking();
-            if (player.Id != playerId)
+            if (player.User.Id != playerId)
                 throw new Game29Exception("Invalid player call to the game: " + player.User.Name);
         }
 
@@ -202,6 +205,7 @@ namespace TwentyNine.Models
             }
 
             BlockingPosition = RoundHostPosition.NextPosition();
+            State = flushedCards.Count > 0 ? GameState.BiddingTrump : GameState.StartRound;
         }
 
         public void BidTrump(string playerId, int points)
@@ -240,7 +244,7 @@ namespace TwentyNine.Models
 
         private Player GetPlayer(string playerId)
         {
-            return Players.SingleOrDefault(item => item.Id == playerId);
+            return Players.SingleOrDefault(item => item.User.Id == playerId);
         }
 
         private PlayerPosition GetPlayerPosition(string playerId)
@@ -251,14 +255,14 @@ namespace TwentyNine.Models
 
         private PlayerTeam GetPlayerTeam(string playerId)
         {
-            var player = Players.SingleOrDefault(item => item.Id == playerId);
+            var player = Players.SingleOrDefault(item => item.User.Id == playerId);
             return player != null ? player.Position.Team() : PlayerTeam.Unknown;
         }
 
         public void SendDoubleScoreOffer(string playerId)
         {
             var currentPlayerTeam = GetPlayerTeam(playerId);
-            var trumpPlayerTeam = GetPlayerTeam(TrumpPlayer.Id);
+            var trumpPlayerTeam = GetPlayerTeam(TrumpPlayer.User.Id);
             if (!((trumpPlayerTeam == PlayerTeam.TeamA && currentPlayerTeam == PlayerTeam.TeamB) ||
                 (trumpPlayerTeam == PlayerTeam.TeamB && currentPlayerTeam == PlayerTeam.TeamA)))
                 throw new Game29Exception("Players currently does not belong to opposite teams to give or pass double offer");
@@ -270,7 +274,7 @@ namespace TwentyNine.Models
         public void SendRedoubleScoreOffer(string playerId)
         {
             var currentPlayerTeam = GetPlayerTeam(playerId);
-            var trumpPlayerTeam = GetPlayerTeam(TrumpPlayer.Id);
+            var trumpPlayerTeam = GetPlayerTeam(TrumpPlayer.User.Id);
             if (!((trumpPlayerTeam == PlayerTeam.TeamA && currentPlayerTeam == PlayerTeam.TeamA) ||
                   (trumpPlayerTeam == PlayerTeam.TeamB && currentPlayerTeam == PlayerTeam.TeamB)))
                 throw new Game29Exception(
@@ -285,9 +289,6 @@ namespace TwentyNine.Models
             BlockingPosition = RoundHostPosition.NextPosition();
         }
 
-        private const int MaxPlayRounds = 8;
-        private const int MaxPlayers = 4;
-
         public void PlayCard(string playerId, Card card)
         {
             var player = GetPlayer(playerId);
@@ -296,6 +297,7 @@ namespace TwentyNine.Models
             currentRound.Cards.Add(card);
             player.Cards.Remove(card);
 
+            State = GameState.ContinueRound;
             if (currentRound.Cards.Count == MaxPlayers)
             {
                 DoneWithCurrentRound();
@@ -320,6 +322,7 @@ namespace TwentyNine.Models
 
         private void DoneWithCurrentRound()
         {
+            State = GameState.RoundCompleted;
             ScoreCurrentRound();
             if (!IsGameCompleted)
             {
@@ -361,7 +364,7 @@ namespace TwentyNine.Models
 
         private void UpdateRunningScore()
         {
-            var trumpPlayerTeam = GetPlayerTeam(TrumpPlayer.Id);
+            var trumpPlayerTeam = GetPlayerTeam(TrumpPlayer.User.Id);
             RunningScore =
                 PlayedRounds.Sum(
                     item => trumpPlayerTeam == item.RoundWinner.Team() ? item.RoundScore : 0);
@@ -373,7 +376,22 @@ namespace TwentyNine.Models
             WinningTeam = RunningScore >= TargetScore
                 ? trumpTeam
                 : (trumpTeam == PlayerTeam.TeamA ? PlayerTeam.TeamB : PlayerTeam.TeamA);
-            State = GameState.Completed;
+            State = GameState.GameCompleted;
+        }
+
+        public void ShowTrump(string playerId)
+        {
+            var player = GetPlayer(playerId);
+            if (player.Position == RoundHostPosition || player.Position != BlockingPosition)
+                throw new Game29Exception("Trump can be opened on your turn only");
+
+            var currentRound = GetCurrentRound();
+            var firstCard = currentRound.Cards.First();
+            if (player.Cards.FirstOrDefault(card => card.Suite == firstCard.Suite) != null)
+                throw new Game29Exception("Trump cannot be opened if you already have the running color");
+
+            TrumpOpenedBy = player.Position;
+            TrumpOpenedRound = GetCurrentRound();
         }
     }
 }

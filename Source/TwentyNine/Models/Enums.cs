@@ -36,16 +36,14 @@ namespace TwentyNine.Models
     public enum GameState
     {
         New,
-        MixingCards,
-        DistributingCards1,
         BiddingTrump,
         SettingTrump,
         OfferDoublePoints,
         OfferRedoublePoints,
-        DistributingCards2,
-        TrickPlay,
-        UpdatingScore,
-        Completed,
+        StartRound,
+        ContinueRound,
+        RoundCompleted,
+        GameCompleted,
         Cancelled
     }
 

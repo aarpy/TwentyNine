@@ -5,7 +5,7 @@ namespace TwentyNine.Models
 {
     public class Player
     {
-        public string Id { get; set; }
+        public string ConnectionId { get; set; }
         public virtual User User { get; set; }
 
         public virtual Room Room { get; set; }

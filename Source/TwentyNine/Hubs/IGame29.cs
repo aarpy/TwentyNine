@@ -18,7 +18,7 @@ namespace TwentyNine.Hubs
         void PlayCard(Card card);
         void ShowTrump();
         void SendMessage(EmoteMessage message);
-        void BootUser(User user);
+        void BootUser(string userId);
         void CloseGame();
     }
 }

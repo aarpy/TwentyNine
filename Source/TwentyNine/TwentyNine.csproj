@@ -216,6 +216,7 @@
     <Compile Include="Models\RoundSet.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\CardPlayed.cs" />
     <Compile Include="ViewModels\PlayerInfo.cs" />
   </ItemGroup>
   <ItemGroup>

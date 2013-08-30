@@ -16,10 +16,10 @@ interface IGame29Client {
     receivedDoubleOffer(user: Game29.User);
     receivedRedoubleOffer(user: Game29.User);
     takeAllCards(cards: Game29.Card[]);
-    cardPlayed(card: Game29.Card, myTurn: boolean);
-    trumpOpened(suite: Game29.SuiteType);
+    cardReceived(cardPlayed: Game29.CardPlayed);
+    trumpOpened(suite: Game29.SuiteType, playerPosition: Game29.PlayerPosition);
 
-    messageReceived(message: Game29.EmoteMessage);
+    messageReceived(message: Game29.EmoteMessage, userId: string);
     userBooted(user: Game29.User);
     gameClosed();
 
@@ -45,7 +45,7 @@ interface IGame29Server {
     showTrump(): JQueryPromise;
 
     sendMessage(message: Game29.EmoteMessage): JQueryPromise;
-    bootUser(user: Game29.User): JQueryPromise;
+    bootUser(userId: string): JQueryPromise;
     closeGame(): JQueryPromise;
 }
 
@@ -395,11 +395,26 @@ module Game29 {
         public Message: string;
     }
 
+    export class CardPlayed {
+        public Card: Card;
+        public PlayerPosition: PlayerPosition;
+        public BlockingPosition: PlayerPosition;
+
+        public GameState: GameState;
+
+        public RoundScore: number;
+        public RoundWinner: PlayerPosition;
+
+        public RunningScore: number;
+        public GameWinner: PlayerTeam;
+    }
+
     export enum PlayerTeam {
         Unknown,
         TeamA,
         TeamB
     }
+
     export enum GameScoreType {
         Normal,
         Double,
@@ -417,16 +432,14 @@ module Game29 {
 
     export enum GameState {
         New,
-        MixingCards,
-        DistributingCards1,
         BiddingTrump,
         SettingTrump,
         OfferDoublePoints,
         OfferRedoublePoints,
-        DistributingCards2,
-        TrickPlay,
-        UpdatingScore,
-        Completed,
+        StartRound,
+        ContinueRound,
+        RoundCompleted,
+        GameCompleted,
         Cancelled
     }
 
