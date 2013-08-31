@@ -93,7 +93,7 @@ namespace TwentyNine.Models
         Seven
     }
 
-    public enum MainScoreCard
+    public enum ScoreCardValue
     {
         Zero,
         One,
@@ -104,7 +104,7 @@ namespace TwentyNine.Models
         Six
     }
 
-    public enum MultiplierCard
+    public enum ScoreCardMultiplier
     {
         Six,
         Five,

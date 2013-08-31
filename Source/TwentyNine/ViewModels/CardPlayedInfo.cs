@@ -2,7 +2,7 @@
 
 namespace TwentyNine.ViewModels
 {
-    public class CardPlayed
+    public class CardPlayedInfo
     {
         public Card Card { get; set; }
         public PlayerPosition PlayerPosition { get; set; }

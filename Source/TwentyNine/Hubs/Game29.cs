@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNet.SignalR;
 using NLog;
+using TwentyNine.Helpers.Converters;
 using TwentyNine.Models;
 using TwentyNine.ViewModels;
 
@@ -37,9 +38,25 @@ namespace TwentyNine.Hubs
             get { return CurrentPlayer.Room.Game; }
         }
 
-        private string UserId
+        private string PlayerId
         {
-            get { return CurrentPlayer.User.Id; }
+            get { return CurrentPlayer.PlayerId; }
+        }
+
+
+        private IGame29Client _game29Client;
+
+        private IGame29Client Game29Client
+        {
+            get
+            {
+                if (_game29Client == null)
+                {
+                    var sourceRoom = Game29Client;
+                    _game29Client = new Game29ClientStub(sourceRoom);
+                }
+                return _game29Client;
+            }    
         }
 
         public Player Join(User user)
@@ -58,15 +75,15 @@ namespace TwentyNine.Hubs
             Player player;
             if (!Players.ContainsKey(Context.ConnectionId) || playerRef == null)
             {
-                user.Id = Guid.NewGuid().ToString();
-                player = new Player {User = user, Joined = DateTime.Now};
+                user.UserId = Guid.NewGuid().ToString();
+                player = new Player { User = user, Joined = DateTime.Now};
                 Players.Add(Context.ConnectionId, player);
             }
             else
             {
                 player = playerRef.Player;
             }
-            player.ConnectionId = Context.ConnectionId;
+            player.PlayerId = player.ConnectionId = Context.ConnectionId;
 
             return player;
         }
@@ -80,7 +97,7 @@ namespace TwentyNine.Hubs
             if (!Rooms.Contains(room))
                 Rooms.Add(room);
 
-            if (room.Players.All(x => x.User.Id != UserId))
+            if (room.Players.All(x => x.PlayerId != PlayerId))
             {
                 room.Players.Add(CurrentPlayer);
             }
@@ -88,9 +105,9 @@ namespace TwentyNine.Hubs
             CurrentPlayer.Room = room;
 
             // tell the people in this room that you've joined
-            Clients.Group(room.Name).userJoined(CurrentPlayer);
+            Game29Client.PlayerJoined(CurrentPlayer.ToPlayerInfo());
 
-            Groups.Add(UserId, room.Name);
+            Groups.Add(PlayerId, room.Name);
 
             return room;
         }
@@ -104,9 +121,9 @@ namespace TwentyNine.Hubs
             CurrentPlayer.Room.Players.Remove(CurrentPlayer);
             CurrentPlayer.Room = null;
 
-            Clients.Group(room.Name).userLeftRoom(CurrentPlayer.User);
+            Game29Client.PlayerLeftRoom(CurrentPlayer.PlayerId);
 
-            Groups.Remove(UserId, room.Name);
+            Groups.Remove(PlayerId, room.Name);
         }
 
         public bool JoinTeam(PlayerPosition playerPosition)
@@ -115,7 +132,7 @@ namespace TwentyNine.Hubs
 
             CurrentGame.JoinTeam(CurrentPlayer, playerPosition);
 
-            Clients.Group(CurrentPlayer.Room.Name).userJoinedTeam(CurrentPlayer);
+            Game29Client.PlayerJoinedTeam(CurrentPlayer.PlayerId, playerPosition);
 
             return true;
         }
@@ -126,9 +143,9 @@ namespace TwentyNine.Hubs
 
             if (CurrentPlayer.Position == PlayerPosition.Watcher) return;
 
-            var position = CurrentGame.LeaveTeam(UserId);
+            var position = CurrentGame.LeaveTeam(PlayerId);
 
-            Clients.Group(CurrentPlayer.Room.Name).userLeftTeam(position);
+            Game29Client.PlayerLeftTeam(position);
         }
 
         public void StartGame()
@@ -142,7 +159,8 @@ namespace TwentyNine.Hubs
 
             foreach (var player in CurrentGame.Players)
             {
-                Clients.Client(player.ConnectionId).gameStarted(CurrentGame, player.Cards);
+                Game29Client.Source = Clients.Client(player.ConnectionId);
+                Game29Client.GameStarted(CurrentGame.ToGameInfo(), player.Cards.ToArray());
             }
         }
 
@@ -150,27 +168,27 @@ namespace TwentyNine.Hubs
         {
             Logger.Info("BidTrump called");
 
-            CurrentGame.BidTrump(UserId, points);
+            CurrentGame.BidTrump(PlayerId, points);
 
-            Clients.Group(CurrentPlayer.Room.Name).bidReceived(points, CurrentGame.BlockingPosition);
+            Game29Client.BidReceived(points, CurrentGame.BlockingPosition);
         }
 
         public void BidPass()
         {
             Logger.Info("BidPass called");
 
-            CurrentGame.BidPass(UserId);
+            CurrentGame.BidPass(PlayerId);
 
-            Clients.Group(CurrentPlayer.Room.Name).bidPassed(CurrentGame.BlockingPosition);
+            Game29Client.BidPassed(CurrentGame.BlockingPosition);
         }
 
         public void BidTrumpFinalize()
         {
             Logger.Info("BidTrumpFinalize called");
 
-            CurrentGame.BidFinalize(UserId);
+            CurrentGame.BidFinalize(PlayerId);
 
-            Clients.Group(CurrentPlayer.Room.Name).bidFinalized(CurrentGame.TargetScore);
+            Game29Client.BidFinalized(CurrentGame.TargetScore);
         }
 
         public void SelectTrump(SuiteType suite)
@@ -179,25 +197,25 @@ namespace TwentyNine.Hubs
 
             CurrentGame.SelectTrump(suite);
 
-            Clients.Group(CurrentPlayer.Room.Name).trumpSelected();
+            Game29Client.TrumpSelected();
         }
 
         public void SubmitDoubleScoreOffer()
         {
             Logger.Info("SubmitDoubleScoreOffer called");
 
-            CurrentGame.SendDoubleScoreOffer(UserId);
+            CurrentGame.SendDoubleScoreOffer(PlayerId);
 
-            Clients.Group(CurrentPlayer.Room.Name).receivedDoubleOffer(CurrentPlayer.User);
+            Game29Client.ReceivedDoubleOffer(CurrentPlayer.PlayerId);
         }
 
         public void SubmitRedoubleScoreOffer()
         {
             Logger.Info("SubmitRedoubleScoreOffer called");
 
-            CurrentGame.SendRedoubleScoreOffer(UserId);
+            CurrentGame.SendRedoubleScoreOffer(PlayerId);
 
-            Clients.Group(CurrentPlayer.Room.Name).receivedRedoubleOffer(CurrentPlayer.User);
+            Game29Client.ReceivedRedoubleOffer(CurrentPlayer.PlayerId);
 
             DistributeAllCards();
         }
@@ -217,7 +235,8 @@ namespace TwentyNine.Hubs
 
             foreach (var player in CurrentGame.Players)
             {
-                Clients.Client(player.ConnectionId).takeAllCards(player.Cards);
+                Game29Client.Source = Clients.Client(player.ConnectionId);
+                Game29Client.TakeAllCards(player.Cards.ToArray());
             }
         }
 
@@ -225,13 +244,13 @@ namespace TwentyNine.Hubs
         {
             Logger.Info("PlayCard called");
 
-            var cardPlayed = new CardPlayed
+            var cardPlayed = new CardPlayedInfo
             {
                 Card = card,
                 PlayerPosition = CurrentGame.BlockingPosition
             };
 
-            CurrentGame.PlayCard(UserId, card);
+            CurrentGame.PlayCard(PlayerId, card);
 
             cardPlayed.BlockingPosition = CurrentGame.BlockingPosition;
             cardPlayed.GameState = CurrentGame.State;
@@ -249,23 +268,23 @@ namespace TwentyNine.Hubs
                 cardPlayed.GameWinner = CurrentGame.WinningTeam;
             }
 
-            Clients.Group(CurrentPlayer.Room.Name).cardReceived(cardPlayed);
+            Game29Client.CardReceived(cardPlayed);
         }
 
         public void ShowTrump()
         {
             Logger.Info("ShowTrump called");
 
-            CurrentGame.ShowTrump(UserId);
+            CurrentGame.ShowTrump(PlayerId);
 
-            Clients.Group(CurrentPlayer.Room.Name).trumpOpened(CurrentGame.TrumpSuite, CurrentPlayer.Position);
+            Game29Client.TrumpOpened(CurrentGame.TrumpSuite, CurrentPlayer.Position);
         }
 
         public void SendMessage(EmoteMessage message)
         {
             Logger.Info("SendMessage called");
 
-            Clients.Group(CurrentPlayer.Room.Name).messageReceived(message, UserId);
+            Game29Client.MessageReceived(message, PlayerId);
         }
 
         public void BootUser(string userId)
@@ -276,14 +295,14 @@ namespace TwentyNine.Hubs
                 throw new Game29Exception("User can be booted only by room host");
 
             var bootedPlayer =
-                Players.Where(player => player.Value.User.Id == userId).Select(x => x.Value).FirstOrDefault();
+                Players.Where(player => player.Value.PlayerId == userId).Select(x => x.Value).FirstOrDefault();
             if (bootedPlayer == null) return;
 
             if (bootedPlayer.Position != PlayerPosition.Watcher &&
                 (CurrentGame.State != GameState.New || CurrentGame.State != GameState.GameCompleted))
                 throw new Game29Exception("Player cannot be booted during the game");
 
-            Clients.Group(CurrentPlayer.Room.Name).userBooted(bootedPlayer.User);
+            Game29Client.PlayerBooted(bootedPlayer.PlayerId);
         }
 
         public void CloseGame()
@@ -293,8 +312,7 @@ namespace TwentyNine.Hubs
             if (CurrentPlayer.Position != CurrentGame.RoomLeaderPosition)
                 throw new Game29Exception("User can be closed only by room host");
 
-            Clients.Group(CurrentPlayer.Room.Name).gameClosed();
+            Game29Client.GameClosed();
         }
-
     }
 }

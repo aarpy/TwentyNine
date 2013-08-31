@@ -5,6 +5,7 @@ namespace TwentyNine.Models
 {
     public class Player
     {
+        public string PlayerId { get; set; }
         public string ConnectionId { get; set; }
         public virtual User User { get; set; }
 

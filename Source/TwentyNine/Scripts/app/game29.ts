@@ -3,24 +3,24 @@
 /// <reference path="../typings/signalr/signalr.d.ts" />
 
 interface IGame29Client {
-    userJoined(user: Game29.User);
-    userLeftRoom(user: Game29.User);
-    userJoinedTeam(user: Game29.Player);
-    userLeftTeam(position: Game29.PlayerPosition);
+    playerJoined(player: Game29.PlayerInfo);
+    playerLeftRoom(playerId: string);
+    playerJoinedTeam(playerId: string, position: Game29.PlayerPosition);
+    playerLeftTeam(position: Game29.PlayerPosition);
 
-    gameStarted(game: Game29.Game, cards: Game29.Card[]);
+    gameStarted(game: Game29.GameInfo, cards: Game29.Card[]);
     bidReceived(points: number, blockingPosition: Game29.PlayerPosition);
     bidPassed(blockingPosition: Game29.PlayerPosition);
     binFinalized(points: number);
     trumpSelected();
-    receivedDoubleOffer(user: Game29.User);
-    receivedRedoubleOffer(user: Game29.User);
+    receivedDoubleOffer(playerId: string);
+    receivedRedoubleOffer(playerId: string);
     takeAllCards(cards: Game29.Card[]);
     cardReceived(cardPlayed: Game29.CardPlayed);
     trumpOpened(suite: Game29.SuiteType, playerPosition: Game29.PlayerPosition);
 
     messageReceived(message: Game29.EmoteMessage, userId: string);
-    userBooted(user: Game29.User);
+    playerBooted(playerId: string);
     gameClosed();
 
     exceptionHandler(messge: string);
@@ -349,36 +349,32 @@ module Game29 {
     // setup controller
     App.controller("Game29Ctrl", Game29Ctrl);
 
-    export class User {
+    export class PlayerInfo {
         public Id: string;
         public Name: string;
         public Email: string;
+        public Position: PlayerPosition;
     }
 
-    export class Player {
-        public User: User;
-        public Player: PlayerPosition;
-    }
-
-    export class Room {
+    export class RoomInfo {
         public Id: string;
         public Name: string;
         public State: RoomState;
-        public Watchers: User[];
+        public Watchers: PlayerInfo[];
     }
 
-    export class Game {
+    export class GameInfo {
         public Id: string;
         public State: GameState;
         public ScoreType: GameScoreType;
         public Result: PlayerTeam;
 
-        public CurrentRound: RoundSet;
+        public CurrentRound: RoundSetInfo;
 
         public MyCards: Card[];
     }
 
-    export class RoundSet
+    export class RoundSetInfo
     {
         public Result: PlayerTeam;
         public RoundHost: PlayerPosition;

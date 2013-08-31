@@ -6,7 +6,7 @@ namespace TwentyNine.Models
 {
     public class Room
     {
-        public Guid Id { get; set; }
+        public Guid RoomId { get; set; }
         public string Name { get; set; }
         public RoomState State { get; set; }
 
@@ -16,11 +16,7 @@ namespace TwentyNine.Models
 
         public virtual ICollection<Player> Players
         {
-            get
-            {
-                if (_watchers == null) _watchers = new Collection<Player>();
-                return _watchers;
-            }
+            get { return _watchers ?? (_watchers = new Collection<Player>()); }
         }
 
         public DateTime Created { get; set; }

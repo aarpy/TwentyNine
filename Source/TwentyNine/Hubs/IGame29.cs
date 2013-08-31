@@ -1,4 +1,5 @@
 ﻿using TwentyNine.Models;
+using TwentyNine.ViewModels;
 
 namespace TwentyNine.Hubs
 {

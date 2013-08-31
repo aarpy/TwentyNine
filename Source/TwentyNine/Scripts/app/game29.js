@@ -256,40 +256,33 @@ var Game29;
     // setup controller
     App.controller("Game29Ctrl", Game29Ctrl);
 
-    var User = (function () {
-        function User() {
+    var PlayerInfo = (function () {
+        function PlayerInfo() {
         }
-        return User;
+        return PlayerInfo;
     })();
-    Game29.User = User;
+    Game29.PlayerInfo = PlayerInfo;
 
-    var Player = (function () {
-        function Player() {
+    var RoomInfo = (function () {
+        function RoomInfo() {
         }
-        return Player;
+        return RoomInfo;
     })();
-    Game29.Player = Player;
+    Game29.RoomInfo = RoomInfo;
 
-    var Room = (function () {
-        function Room() {
+    var GameInfo = (function () {
+        function GameInfo() {
         }
-        return Room;
+        return GameInfo;
     })();
-    Game29.Room = Room;
+    Game29.GameInfo = GameInfo;
 
-    var Game = (function () {
-        function Game() {
+    var RoundSetInfo = (function () {
+        function RoundSetInfo() {
         }
-        return Game;
+        return RoundSetInfo;
     })();
-    Game29.Game = Game;
-
-    var RoundSet = (function () {
-        function RoundSet() {
-        }
-        return RoundSet;
-    })();
-    Game29.RoundSet = RoundSet;
+    Game29.RoundSetInfo = RoundSetInfo;
 
     var Card = (function () {
         function Card() {

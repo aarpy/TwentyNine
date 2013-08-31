@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using TwentyNine.Models;
+
+namespace TwentyNine.ViewModels
+{
+    public class RoomInfo
+    {
+        public Guid RoomId { get; set; }
+        public string Name { get; set; }
+        public RoomState State { get; set; }
+
+        public virtual Game Game { get; set; }
+
+        public ICollection<Player> Watchers { get; set; }
+    }
+}
