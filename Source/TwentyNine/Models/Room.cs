@@ -25,6 +25,8 @@ namespace TwentyNine.Models
         public Room()
         {
             Game = new Game();
+
+            Created = Modified = DateTime.Now;
         }
     }
 }

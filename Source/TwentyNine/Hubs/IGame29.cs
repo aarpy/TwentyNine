@@ -5,8 +5,8 @@ namespace TwentyNine.Hubs
 {
     public interface IGame29
     {
-        Player Join(User user);
-        Room JoinRoom(Room room);
+        PlayerInfo Join(PlayerInfo playerInfo);
+        RoomInfo JoinRoom(RoomInfo room);
         void LeaveRoom();
         bool JoinTeam(PlayerPosition playerPosition);
         void LeaveTeam();

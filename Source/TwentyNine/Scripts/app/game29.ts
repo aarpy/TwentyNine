@@ -19,7 +19,7 @@ interface IGame29Client {
     cardReceived(cardPlayed: Game29.CardPlayed);
     trumpOpened(suite: Game29.SuiteType, playerPosition: Game29.PlayerPosition);
 
-    messageReceived(message: Game29.EmoteMessage, userId: string);
+    messageReceived(message: Game29.EmoteMessage, playerId: string);
     playerBooted(playerId: string);
     gameClosed();
 

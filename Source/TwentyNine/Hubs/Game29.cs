@@ -52,18 +52,18 @@ namespace TwentyNine.Hubs
             {
                 if (_game29Client == null)
                 {
-                    var sourceRoom = Game29Client;
+                    var sourceRoom = Clients.Group(CurrentPlayer.Room.Name);
                     _game29Client = new Game29ClientStub(sourceRoom);
                 }
                 return _game29Client;
             }    
         }
 
-        public Player Join(User user)
+        public PlayerInfo Join(PlayerInfo playerInfo)
         {
-            Logger.Info("{0} joined 29", user.Email);
+            Logger.Info("{0} joined 29", playerInfo.Email);
 
-            var playerRef = Players.Where(x => x.Value.User.Email == user.Email).Select(x => new
+            var playerRef = Players.Where(x => x.Value.User.Email == playerInfo.Email).Select(x => new
             {
                 ConnectionId = x.Key,
                 Player = x.Value
@@ -75,8 +75,11 @@ namespace TwentyNine.Hubs
             Player player;
             if (!Players.ContainsKey(Context.ConnectionId) || playerRef == null)
             {
-                user.UserId = Guid.NewGuid().ToString();
-                player = new Player { User = user, Joined = DateTime.Now};
+                player = new Player
+                {
+                    User = new User {UserId = Guid.NewGuid().ToString(), Email = playerInfo.Email, Name = playerInfo.Name},
+                    Joined = DateTime.Now
+                };
                 Players.Add(Context.ConnectionId, player);
             }
             else
@@ -85,14 +88,18 @@ namespace TwentyNine.Hubs
             }
             player.PlayerId = player.ConnectionId = Context.ConnectionId;
 
-            return player;
+            return player.ToPlayerInfo();
         }
 
-        public Room JoinRoom(Room room)
+        public RoomInfo JoinRoom(RoomInfo roomInfo)
         {
-            Logger.Info("{0} joined {1} room", CurrentPlayer.User.Email, room.Name);
+            Logger.Info("{0} joined {1} room", CurrentPlayer.User.Email, roomInfo.Name);
 
-            room = Rooms.FirstOrDefault(x => x.Name == room.Name) ?? room;
+            var room = Rooms.FirstOrDefault(x => x.Name == roomInfo.Name) ?? new Room
+            {
+                RoomId = Guid.NewGuid(),
+                Name = roomInfo.Name
+            };
 
             if (!Rooms.Contains(room))
                 Rooms.Add(room);
@@ -109,7 +116,7 @@ namespace TwentyNine.Hubs
 
             Groups.Add(PlayerId, room.Name);
 
-            return room;
+            return room.ToRoomInfo();
         }
 
         public void LeaveRoom()
