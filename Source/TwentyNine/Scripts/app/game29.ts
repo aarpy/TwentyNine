@@ -27,8 +27,8 @@ interface IGame29Client {
 }
 
 interface IGame29Server {
-    join(user: Game29.User): JQueryPromise;
-    joinRoom(room: Game29.Room): JQueryPromise;
+    join(user: Game29.PlayerInfo): JQueryPromise;
+    joinRoom(room: Game29.RoomInfo): JQueryPromise;
     leaveRoom(): JQueryPromise;
     joinTeam(playerPosition: Game29.PlayerPosition): JQueryPromise;
     leaveTeam(): JQueryPromise;
@@ -45,7 +45,7 @@ interface IGame29Server {
     showTrump(): JQueryPromise;
 
     sendMessage(message: Game29.EmoteMessage): JQueryPromise;
-    bootUser(userId: string): JQueryPromise;
+    bootUser(playerId: string): JQueryPromise;
     closeGame(): JQueryPromise;
 }
 
@@ -104,14 +104,14 @@ module Game29 {
         messages: string[];
         sendMessage(message: EmoteMessage);
 
-        selectedUser: User;
+        selectedUser: PlayerInfo;
         bootUser();
 
         closeGame();
 
-        me: User;
-        room: Room;
-        game: Game;
+        me: PlayerInfo;
+        room: RoomInfo;
+        game: GameInfo;
         cards: Card[];
     }
 
@@ -132,7 +132,7 @@ module Game29 {
 
         //#region Properties
 
-        get me(): User {
+        get me(): PlayerInfo {
             var value = this.$scope.me;
 
             if (!value) {
@@ -142,7 +142,7 @@ module Game29 {
                 //if (!userEmail)
                     return null;
 
-                value = new User();
+                value = new PlayerInfo();
                 value.Name = userName;
                 value.Email = userEmail;
             }
@@ -150,7 +150,7 @@ module Game29 {
             return value;
         }
 
-        get room(): Room {
+        get room(): RoomInfo {
             var value = this.$scope.room;
 
             if (!value) {
@@ -159,7 +159,7 @@ module Game29 {
                 if (!roomName)
                     return null;
 
-                value = new Room();
+                value = new RoomInfo();
                 value.Name = roomName;
 
                 this.$scope.room = value;
@@ -247,8 +247,8 @@ module Game29 {
         //#region Client
 
         private registerClientCallbacks() {
-            this._game29.client.userJoined = (user: User) => this.userJoined(user);
-            this._game29.client.userLeftRoom = (user: User) => this.userLeftRoom(user);
+            this._game29.client.playerJoined = (player: PlayerInfo) => this.playerJoined(player);
+            this._game29.client.playerLeftRoom = (playerId: string) => this.playerLeftRoom(playerId);
             this._game29.client.trumpOpened = (suite: SuiteType) => {
                 //this.$scope.showTrump = true;
                 this.$scope.$apply();
@@ -258,8 +258,8 @@ module Game29 {
             };
         }
 
-        private userJoined(user: User) {
-            Logger.log("userJoined");
+        private playerJoined(user: PlayerInfo) {
+            Logger.log("playerJoined");
             //if (this.$scope.room.Users) {
             //    var found = false;
 
@@ -279,8 +279,8 @@ module Game29 {
             //}
         }
 
-        private userLeftRoom(user: User) {
-            Logger.log("userLeftRoom called");
+        private playerLeftRoom(playerId: string) {
+            Logger.log("playerLeftRoom called");
             //var found = false;
 
             //if (user.Email === this.$scope.me.Email) {
@@ -303,7 +303,7 @@ module Game29 {
 
         //#region Server
 
-        private join(user: User = this.me): JQueryPromise {
+        private join(user: PlayerInfo = this.me): JQueryPromise {
             var that = this;
             return this._game29.server.join(user).done(function (data) {
                 that.$scope.me = data;
@@ -311,7 +311,7 @@ module Game29 {
             });
         }
 
-        private joinRoom(room: Room = this.room): JQueryPromise {
+        private joinRoom(room: RoomInfo = this.room): JQueryPromise {
             this.$location.path("/rooms/" + encodeURIComponent(room.Name));
 
             var that = this;
@@ -323,7 +323,7 @@ module Game29 {
             });
         }
 
-        private leaveRoom(user: User = this.me): JQueryPromise {
+        private leaveRoom(user: PlayerInfo = this.me): JQueryPromise {
             return null;
         }
 

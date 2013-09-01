@@ -12,14 +12,16 @@ namespace TwentyNine.Hubs
         void LeaveTeam();
         void StartGame();
         void BidTrump(int points);
+        void BidPass();
         void BidTrumpFinalize();
+        void SelectTrump(SuiteType suite);
         void SubmitDoubleScoreOffer();
         void SubmitRedoubleScoreOffer();
-        void SelectTrump(SuiteType suite);
+        void PassDoubleScoreOffer();
         void PlayCard(Card card);
         void ShowTrump();
         void SendMessage(EmoteMessage message);
-        void BootUser(string userId);
+        void BootUser(string playerId);
         void CloseGame();
     }
 }

@@ -43,7 +43,6 @@ namespace TwentyNine.Hubs
             get { return CurrentPlayer.PlayerId; }
         }
 
-
         private IGame29Client _game29Client;
 
         private IGame29Client Game29Client
