@@ -1,98 +1,156 @@
 ﻿@{
-	Layout = null;
+    Layout = null;
 }
-
 <!DOCTYPE html>
 <html data-ng-app="game29">
-	<head>
-		<title>29</title>
-		
-		@Styles.Render("~/content/app")
-		@Scripts.Render("~/scripts/app")
-		<script src="~/signalr/hubs"></script>
-	</head>
-	<body data-ng-controller="Game29Ctrl" data-ng-class="{ 'hide-room': joinModal || joinRoomModal }">
+<head>
+    <title>29</title>
 
-		<div class="container-fluid playing-field">
-			<h2>Room: {{ room.Name }}</h2>
-			
-		    <section>
-		        <h3>Score Card</h3>
-		        <div>
-		            <h4>Score Card</h4>
-		            <div>
-		                
-		            </div>
-		        </div>
-		    </section>
-		    <button class="pull-right btn btn-danger" data-ng-click="resetRoom()">Reset Room</button>
-			<button class="pull-right btn btn-info" data-ng-click="showAllCards(!allCardsShowing)">{{ allCardsShowing && 'Hide' || 'Show' }} All Cards</button>
+    @Styles.Render("~/content/app")
+    @Scripts.Render("~/scripts/app")
+    <script src="~/signalr/hubs"></script>
+</head>
+<body data-ng-controller="Game29Ctrl" data-ng-class="{ 'hide-room': joinModal || joinRoomModal }">
 
-			<section>
-				<div class="row-fluid">
-					<input type="text" class="span12 topic" data-ng-model="room.Name" placeholder="Enter Name" required />
-				</div>
-					
-				<ul class="row-fluid cards">
-					<li class="card" data-ng-repeat="card in room.Cards" data-ng-class="{ 'card-hidden': !allCardsShowing && card.User.Email != me.Email, 'card-selected': card.Value.length > 0 }">
-						<div class="name">{{ card.User.Name }}</div>
-						<div class="value">{{ card.Value }}</div>
-					</li>
-				</ul>
-				
-				<div class="row-fluid">
-					<select data-ng-model="myCard.Value" data-ng-change="myCardValueChanged()" required>
-						<option value="">Make Card Selection</option>
-						<option>0</option>
-						<option>1/2</option>
-						<option>1</option>
-						<option>2</option>
-						<option>3</option>
-						<option>5</option>
-						<option>8</option>
-						<option>13</option>
-						<option>20</option>
-						<option>40</option>
-						<option>100</option>
-						<option>?</option>
-					</select>
-				</div>
-			</section>
-			
-			<div class="players">
-				<h4>Players</h4>
-					
-				<ul>
-					<li data-ng-repeat="user in room.Users" data-ng-class="{ disabled: user.Disconnected, me: user.Email == me.Email }">
-						<i class="icon icon-white icon-trash" data-ng-click="removeRoomUser()"></i> {{ user.Name }}
-					</li>
-				</ul>
-			</div>
-		</div>
-		
-		<div id="joinModal" data-modal="joinModal" data-options="joinModalOptions">
-			<div class="modal-header">
-				<h3>Join 29</h3>
-			</div>
-			<div class="modal-body">
-				<p><label>Your Name<br/><input type="text" data-ng-model="me.Name" placeholder="Your Name" required /></label></p>
-				<p><label>Your Email<br/><input type="email" data-ng-model="me.Email" placeholder="Your Email" required /></label></p>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-primary" data-ng-click="closeJoinModal()">Join</button>
-			</div>
-		</div>
+    <div class="container-fluid playing-field">
+        <h2>Room: {{ room.Name }}</h2>
+        <section>
+            <h3>Score</h3>
+            <div>Team A: {{room.Game.TeamAScore}}</div>
+            <div>Team B: {{room.Game.TeamBScore}}</div>
+        </section>
 
-		<div id="joinRoomModal" data-modal="joinRoomModal" data-options="joinModalOptions">
-			<div class="modal-header">
-				<h3>Join Room</h3>
-			</div>
-			<div class="modal-body">
-				<p><label>Poker Room Name<br/><input type="text" data-ng-model="room.Name" placeholder="Room Name" required /></label></p>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-primary" data-ng-click="closeJoinRoomModal()">Join</button>
-			</div>
-		</div>
-	</body>
+        <section>
+            <div class="row-fluid">
+                <h3>Players</h3>
+                <li class="player" data-ng-repeat="player in room.Game.Players">
+                    <div class="name">{{ player.Name }}</div>
+                    <div class="position">{{ player.Position }}</div>
+                </li>
+            </div>
+
+            <div class="row-fluid">
+                <select data-ng-model="me.Position" data-ng-change="myCardValueChanged()" required>
+                    <option value="">Join Team</option>
+                    <option>Watcher</option>
+                    <option>A1</option>
+                    <option>B1</option>
+                    <option>A2</option>
+                    <option>B2</option>
+                </select>
+            </div>
+        </section>
+
+        <section>
+            <div class="row-fluid">
+                <h3>Cards</h3>
+                <li class="player" data-ng-repeat="card in cards">
+                    <div class="name">{{ card.Suite }} {{ card.PointCard }}</div>
+                    <button class="btn" data-ng-click="playCard()">Play</button>
+                </li>
+            </div>
+
+            <div class="row-fluid">
+                <button class="btn" data-ng-click="startGame()">Start Game</button>
+                <button class="btn" data-ng-click="showTrump()">Show Trump</button>
+                <button class="btn" data-ng-click="startGame()">Start Game</button>
+                <button class="btn" data-ng-click="startGame()">Start Game</button>
+            </div>
+        </section>
+
+        <div class="players">
+            <h4>Players</h4>
+
+            <ul>
+                <li data-ng-repeat="watcher in room.Watchers">
+                    <i class="icon icon-white icon-trash" data-ng-click="removeRoomUser()"></i>{{ watcher.Name }}
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="joinModal" data-modal="joinModal" data-options="joinModalOptions">
+        <div class="modal-header">
+            <h3>Join 29</h3>
+        </div>
+        <div class="modal-body">
+            <p>
+                <label>
+                    Your Name<br />
+                    <input type="text" data-ng-model="me.Name" placeholder="Your Name" required /></label>
+            </p>
+            <p>
+                <label>
+                    Your Email<br />
+                    <input type="email" data-ng-model="me.Email" placeholder="Your Email" required /></label>
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" data-ng-click="closeJoinModal()">Join</button>
+        </div>
+    </div>
+
+    <div id="joinRoomModal" data-modal="joinRoomModal" data-options="joinModalOptions">
+        <div class="modal-header">
+            <h3>Join Room</h3>
+        </div>
+        <div class="modal-body">
+            <p>
+                <label>
+                    Room Name<br />
+                    <input type="text" data-ng-model="room.Name" placeholder="Room Name" required /></label>
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" data-ng-click="closeJoinRoomModal()">Join</button>
+        </div>
+    </div>
+
+    <div id="bidTrumpModal" data-modal="bidTrumpModal" data-options="bidTrumpModalOptions">
+        <div class="modal-header">
+            <h3>Bid Trump</h3>
+        </div>
+        <div class="modal-body">
+            <p><span>Current Bid <em>{{currentBid}}</em> by <em>{{currentBidPerson}}</em></span></p>
+            <p>
+                <label>
+                    Bid<br />
+                    <select data-ng-model="bidOffer" required>
+                        <option value="">Pass</option>
+                        <option>19</option>
+                        <option>20</option>
+                        <option>21</option>
+                        <option>22</option>
+                        <option>23</option>
+                        <option>24</option>
+                        <option>25</option>
+                        <option>26</option>
+                        <option>27</option>
+                        <option>28</option>
+                        <option>29</option>
+                    </select>
+                </label>
+            </p>
+            <p>
+                <label>
+                    Trump<br />
+                    <select data-ng-model="trumpSelection" required>
+                        <option>Spade</option>
+                        <option>Heart</option>
+                        <option>Diamond</option>
+                        <option>Club</option>
+                    </select>
+                </label>
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" data-ng-click="bidTrump()">Bid</button>
+            <button class="btn" data-ng-click="bidPass()">Pass</button>
+            <button class="btn" data-ng-click="selectTrump()">Select Suite</button>
+            <button class="btn" data-ng-click="submitdDoubleOffer()">Offer Double score</button>
+            <button class="btn" data-ng-click="submitRedoubleOffer()">Offer Re-double score</button>
+            <button class="btn" data-ng-click="passDoubleOffer()">Pass double score</button>
+        </div>
+    </div>
+</body>
 </html>

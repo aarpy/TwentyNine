@@ -10,8 +10,8 @@ namespace TwentyNine.ViewModels
         public string Name { get; set; }
         public RoomState State { get; set; }
 
-        public virtual Game Game { get; set; }
+        public virtual GameInfo Game { get; set; }
 
-        public ICollection<Player> Watchers { get; set; }
+        public ICollection<PlayerInfo> Watchers { get; set; }
     }
 }

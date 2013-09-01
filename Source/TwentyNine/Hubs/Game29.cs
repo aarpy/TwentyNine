@@ -158,7 +158,6 @@ namespace TwentyNine.Hubs
         {
             Logger.Info("StartGame called");
 
-
             CurrentGame.CreateGame();
             CurrentGame.FlushCards();
             CurrentGame.DistributeCards();

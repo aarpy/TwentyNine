@@ -1,70 +1,8 @@
+/// <reference path="contracts.ts" />
+/// <reference path="models.ts" />
 /// <reference path="../typings/jquery/jquery.d.ts" />
 /// <reference path="../typings/angularjs/angular.d.ts" />
 /// <reference path="../typings/signalr/signalr.d.ts" />
-
-interface IGame29Client {
-    playerJoined(player: Game29.PlayerInfo);
-    playerLeftRoom(playerId: string);
-    playerJoinedTeam(playerId: string, position: Game29.PlayerPosition);
-    playerLeftTeam(position: Game29.PlayerPosition);
-
-    gameStarted(game: Game29.GameInfo, cards: Game29.Card[]);
-    bidReceived(points: number, blockingPosition: Game29.PlayerPosition);
-    bidPassed(blockingPosition: Game29.PlayerPosition);
-    binFinalized(points: number);
-    trumpSelected();
-    receivedDoubleOffer(playerId: string);
-    receivedRedoubleOffer(playerId: string);
-    takeAllCards(cards: Game29.Card[]);
-    cardReceived(cardPlayed: Game29.CardPlayed);
-    trumpOpened(suite: Game29.SuiteType, playerPosition: Game29.PlayerPosition);
-
-    messageReceived(message: Game29.EmoteMessage, playerId: string);
-    playerBooted(playerId: string);
-    gameClosed();
-
-    exceptionHandler(messge: string);
-}
-
-interface IGame29Server {
-    join(user: Game29.PlayerInfo): JQueryPromise;
-    joinRoom(room: Game29.RoomInfo): JQueryPromise;
-    leaveRoom(): JQueryPromise;
-    joinTeam(playerPosition: Game29.PlayerPosition): JQueryPromise;
-    leaveTeam(): JQueryPromise;
-
-    startGame(): JQueryPromise;
-    bidTrump(points: number): JQueryPromise;
-    bidPass(): JQueryPromise;
-    bidTrumpFinalize(): JQueryPromise;
-    selectTrump(suite: Game29.SuiteType): JQueryPromise;
-    submitDoubleScoreOffer(): JQueryPromise;
-    submitRedoubleScoreOffer(): JQueryPromise;
-    passDoubleScoreOffer(): JQueryPromise;
-    playCard(card: Game29.Card): JQueryPromise;
-    showTrump(): JQueryPromise;
-
-    sendMessage(message: Game29.EmoteMessage): JQueryPromise;
-    bootUser(playerId: string): JQueryPromise;
-    closeGame(): JQueryPromise;
-}
-
-interface HubProxy {
-    client: IGame29Client;
-    server: IGame29Server;
-}
-
-interface SignalR {
-    game29: HubProxy;
-}
-
-class Logger {
-    static log(message: string) {
-        if (typeof window.console !== 'undefined') {
-            window.console.log(message);
-        }
-    }
-}
 
 module Game29 {
 
@@ -111,7 +49,6 @@ module Game29 {
 
         me: PlayerInfo;
         room: RoomInfo;
-        game: GameInfo;
         cards: Card[];
     }
 
@@ -349,125 +286,11 @@ module Game29 {
     // setup controller
     App.controller("Game29Ctrl", Game29Ctrl);
 
-    export class PlayerInfo {
-        public Id: string;
-        public Name: string;
-        public Email: string;
-        public Position: PlayerPosition;
-    }
-
-    export class RoomInfo {
-        public Id: string;
-        public Name: string;
-        public State: RoomState;
-        public Watchers: PlayerInfo[];
-    }
-
-    export class GameInfo {
-        public Id: string;
-        public State: GameState;
-        public ScoreType: GameScoreType;
-        public Result: PlayerTeam;
-
-        public CurrentRound: RoundSetInfo;
-
-        public MyCards: Card[];
-    }
-
-    export class RoundSetInfo
-    {
-        public Result: PlayerTeam;
-        public RoundHost: PlayerPosition;
-        public Cards: Card[];
-    }
-
-    export class Card {
-        public Suite: SuiteType;
-        public PointCard: PointCard;
-    }
-
-    export class EmoteMessage {
-        public Emote: Emote;
-        public Message: string;
-    }
-
-    export class CardPlayed {
-        public Card: Card;
-        public PlayerPosition: PlayerPosition;
-        public BlockingPosition: PlayerPosition;
-
-        public GameState: GameState;
-
-        public RoundScore: number;
-        public RoundWinner: PlayerPosition;
-
-        public RunningScore: number;
-        public GameWinner: PlayerTeam;
-    }
-
-    export enum PlayerTeam {
-        Unknown,
-        TeamA,
-        TeamB
-    }
-
-    export enum GameScoreType {
-        Normal,
-        Double,
-        Redouble
-    }
-
-    export enum RoomState {
-        New,
-        WaitingForPlayers,
-        ReadyForGame,
-        PlayingGame,
-        Closed,
-        Abandoned
-    }
-
-    export enum GameState {
-        New,
-        BiddingTrump,
-        SettingTrump,
-        OfferDoublePoints,
-        OfferRedoublePoints,
-        StartRound,
-        ContinueRound,
-        RoundCompleted,
-        GameCompleted,
-        Cancelled
-    }
-
-    export enum PlayerPosition {
-        Watcher,
-        A1,
-        B1,
-        A2,
-        B2
-    }
-
-    export enum SuiteType {
-        Spade,
-        Heart,
-        Diamond,
-        Club
-    }
-
-    export enum PointCard {
-        Jack,
-        Nine,
-        Ace,
-        Ten,
-        King,
-        Queen,
-        Eight,
-        Seven
-    }
-
-    export enum Emote {
-        Normal,
-        Cheers,
-        Congrats
+    class Logger {
+        static log(message: string) {
+            if (typeof window.console !== 'undefined') {
+                window.console.log(message);
+            }
+        }
     }
 }

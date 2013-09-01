@@ -93,25 +93,6 @@ namespace TwentyNine.Models
         Seven
     }
 
-    public enum ScoreCardValue
-    {
-        Zero,
-        One,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six
-    }
-
-    public enum ScoreCardMultiplier
-    {
-        Six,
-        Five,
-        Four,
-        Three,
-        Two
-    }
     public static class EnumExtensions
     {
         public static PlayerTeam Team(this PlayerPosition position)

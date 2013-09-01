@@ -228,6 +228,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
+    <Content Include="Content\app\game29.css">
+      <DependentUpon>game29.less</DependentUpon>
+    </Content>
+    <Content Include="Content\app\game29.min.css">
+      <DependentUpon>game29.less</DependentUpon>
+    </Content>
     <Content Include="Content\bootstrap-responsive.css" />
     <Content Include="Content\bootstrap-responsive.min.css" />
     <Content Include="Content\bootstrap.css" />
@@ -253,18 +259,25 @@
     <Content Include="Scripts\angular.js" />
     <Content Include="Scripts\angular.min.js" />
     <TypeScriptCompile Include="Scripts\app\game29.ts" />
-    <TypeScriptCompile Include="Scripts\app\file1.ts" />
-    <Content Include="Scripts\app\file1.js">
-      <DependentUpon>file1.ts</DependentUpon>
+    <TypeScriptCompile Include="Scripts\app\contracts.ts" />
+    <Content Include="Scripts\app\contracts.js">
+      <DependentUpon>contracts.ts</DependentUpon>
     </Content>
-    <Content Include="Scripts\app\file1.min.js">
-      <DependentUpon>file1.ts</DependentUpon>
+    <Content Include="Scripts\app\contracts.min.js">
+      <DependentUpon>contracts.ts</DependentUpon>
     </Content>
     <Content Include="Scripts\app\game29.js">
       <DependentUpon>game29.ts</DependentUpon>
     </Content>
     <Content Include="Scripts\app\game29.min.js">
       <DependentUpon>game29.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="Scripts\app\models.ts" />
+    <Content Include="Scripts\app\models.js">
+      <DependentUpon>models.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\app\models.min.js">
+      <DependentUpon>models.ts</DependentUpon>
     </Content>
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -566,10 +579,16 @@
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\HelpPageApiModel.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
-    <Content Include="Content\app\game29.less" />
     <Content Include="Scripts\app\game29.js.map">
       <DependentUpon>game29.ts</DependentUpon>
     </Content>
+    <Content Include="Scripts\app\contracts.js.map">
+      <DependentUpon>contracts.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\app\models.js.map">
+      <DependentUpon>models.ts</DependentUpon>
+    </Content>
+    <Content Include="Content\app\game29.less" />
     <None Include="Scripts\jquery-2.0.3.intellisense.js" />
     <Content Include="Scripts\jquery-2.0.3.js" />
     <Content Include="Scripts\jquery-2.0.3.min.js" />
