@@ -20,7 +20,7 @@ interface IGame29Client {
     cardReceived(cardPlayed: Game29.CardPlayed);
     trumpOpened(suite: Game29.SuiteType, playerPosition: Game29.PlayerPosition);
 
-    messageReceived(message: Game29.EmoteMessage, playerId: string);
+    messageReceived(message: Game29.ChatMessage);
     playerBooted(playerId: string);
     gameClosed();
 
@@ -45,7 +45,7 @@ interface IGame29Server {
     playCard(card: Game29.Card): JQueryPromise;
     showTrump(): JQueryPromise;
 
-    sendMessage(message: Game29.EmoteMessage): JQueryPromise;
+    sendMessage(message: string): JQueryPromise;
     bootUser(playerId: string): JQueryPromise;
     closeGame(): JQueryPromise;
 }

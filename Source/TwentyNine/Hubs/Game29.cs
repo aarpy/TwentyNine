@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Ajax.Utilities;
 using Microsoft.AspNet.SignalR;
 using NLog;
 using TwentyNine.Helpers.Converters;
@@ -285,11 +286,16 @@ namespace TwentyNine.Hubs
             Game29Client.TrumpOpened(CurrentGame.TrumpSuite, CurrentPlayer.Position);
         }
 
-        public void SendMessage(EmoteMessage message)
+        public void SendMessage(string message)
         {
             Logger.Info("SendMessage called");
 
-            Game29Client.MessageReceived(message, PlayerId);
+            Game29Client.MessageReceived(new ChatMessage
+            {
+                Message = message,
+                PlayerId = PlayerId,
+                PlayerName = CurrentPlayer.User.Name
+            });
         }
 
         public void BootUser(string userId)

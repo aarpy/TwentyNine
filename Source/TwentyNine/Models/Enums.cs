@@ -15,13 +15,6 @@ namespace TwentyNine.Models
         Abandoned
     }
 
-    public enum Emote
-    {
-        Normal,
-        Cheers,
-        Congrats
-    }
-
     #endregion
 
     #region Game

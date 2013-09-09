@@ -15,9 +15,10 @@
         public int Coats { get; set; }
     }
 
-    public struct EmoteMessage
+    public struct ChatMessage
     {
-        public Emote Emote { get; set; }
+        public string PlayerId { get; set; }
+        public string PlayerName { get; set; }
         public string Message { get; set; }
     }
 }

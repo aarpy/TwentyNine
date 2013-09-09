@@ -20,7 +20,7 @@ namespace TwentyNine.Hubs
         void PassDoubleScoreOffer();
         void PlayCard(Card card);
         void ShowTrump();
-        void SendMessage(EmoteMessage message);
+        void SendMessage(string message);
         void BootUser(string playerId);
         void CloseGame();
     }

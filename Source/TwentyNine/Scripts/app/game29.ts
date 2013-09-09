@@ -39,8 +39,8 @@ module Game29 {
 
         showTrump();
 
-        messages: string[];
-        sendMessage(message: EmoteMessage);
+        messages: ChatMessage[];
+        sendMessage(message: string);
 
         selectedUser: PlayerInfo;
         bootUser();

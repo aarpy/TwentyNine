@@ -46,8 +46,9 @@ module Game29 {
         public PointCard: PointCard;
     }
 
-    export class EmoteMessage {
-        public Emote: Emote;
+    export class ChatMessage {
+        public PlayerId: string;
+        public PlayerName: string;
         public Message: string;
     }
 
@@ -123,11 +124,5 @@ module Game29 {
         Queen,
         Eight,
         Seven
-    }
-
-    export enum Emote {
-        Normal,
-        Cheers,
-        Congrats
     }
 }

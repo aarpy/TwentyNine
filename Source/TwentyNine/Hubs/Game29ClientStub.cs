@@ -83,9 +83,9 @@ namespace TwentyNine.Hubs
             Source.trumpOpened();
         }
 
-        public void MessageReceived(EmoteMessage message, string playerId)
+        public void MessageReceived(ChatMessage message)
         {
-            Source.messageReceived(message, playerId);
+            Source.messageReceived(message);
         }
 
         public void PlayerBooted(string playerId)

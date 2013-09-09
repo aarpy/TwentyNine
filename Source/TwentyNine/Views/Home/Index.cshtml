@@ -12,7 +12,7 @@
 </head>
 <body data-ng-controller="Game29Ctrl" data-ng-class="{ 'hide-room': joinModal || joinRoomModal }">
 
-    <div class="container-fluid playing-field">
+    <div class="container-fluid playing-field ng-cloak">
         <h2>Room: {{ room.Name }}</h2>
         <section>
             <h3>Score</h3>
@@ -32,7 +32,6 @@
             <div class="row-fluid">
                 <select data-ng-model="me.Position" data-ng-change="myCardValueChanged()" required>
                     <option value="">Join Team</option>
-                    <option>Watcher</option>
                     <option>A1</option>
                     <option>B1</option>
                     <option>A2</option>
@@ -53,19 +52,30 @@
             <div class="row-fluid">
                 <button class="btn" data-ng-click="startGame()">Start Game</button>
                 <button class="btn" data-ng-click="showTrump()">Show Trump</button>
-                <button class="btn" data-ng-click="startGame()">Start Game</button>
-                <button class="btn" data-ng-click="startGame()">Start Game</button>
             </div>
         </section>
 
         <div class="players">
-            <h4>Players</h4>
-
-            <ul>
-                <li data-ng-repeat="watcher in room.Watchers">
-                    <i class="icon icon-white icon-trash" data-ng-click="removeRoomUser()"></i>{{ watcher.Name }}
-                </li>
-            </ul>
+            <div>
+                <h4>Players</h4>
+                <ul>
+                    <li data-ng-repeat="watcher in room.Watchers">
+                        <i class="icon icon-white icon-trash" data-ng-click="removeRoomUser()"></i>{{ watcher.Name }}
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <h4>Chat</h4>
+                <ul>
+                    <li data-ng-repeat="message in messages">
+                        {{ message.PlayerName }}: {{ message.Message }}
+                    </li>
+                </ul>
+                <div class="row-fluid">
+                    <input type="text" data-ng-model="message" placeholder="Enter Message" />
+                    <button class="btn">Send</button>
+                </div>
+            </div>
         </div>
     </div>
 

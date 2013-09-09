@@ -23,7 +23,7 @@ namespace TwentyNine.Hubs
         void CardReceived(CardPlayedInfo cardPlayed);
         void TrumpOpened(SuiteType suite, PlayerPosition playerPosition);
 
-        void MessageReceived(EmoteMessage message, string playerId);
+        void MessageReceived(ChatMessage message);
         void PlayerBooted(string playerId);
         void GameClosed();
         
