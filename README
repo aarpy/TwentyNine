@@ -1,8 +1,9 @@
 29 Card Game
-http://www.pagat.com/jass/29.html
+Rules: http://www.pagat.com/jass/29.html
 
 Uses ASP.NET Web API, SignalR, TypeScript, AngularJS and Bootstrap
 
+Credits:
 Initial framework prototype copied from Consensus project
 https://github.com/nberardi/consensus
 
